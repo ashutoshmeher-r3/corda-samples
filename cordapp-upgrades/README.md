@@ -200,7 +200,7 @@ Validate Issue a challan by running be below command from `Police`'s shell & Set
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
     start PayChallanInitiatorFlow value: 5000, redgNumber: MH01C2321
         
-## Scenario 5: Contract Upgrade for PartyA, RTO and Police to Restrict Vehicle Transfer having pending dues.
+## Scenario 6: Contract Upgrade for PartyA, RTO and Police to Restrict Vehicle Transfer having pending dues.
 **Step1:** 
 
 Shutdown the nodes and upgrade the contracts to version 3 for `RTO`, `PartyA` and `Police`
@@ -233,7 +233,7 @@ transaction, without the latest version of the contract. The flows would be chec
 contract version.
      
     
-## Scenario 6: Contract Upgrade to version 3 for PartyB.  
+## Scenario 7: Contract Upgrade to version 3 for PartyB.  
 
 **Step1:** 
 
