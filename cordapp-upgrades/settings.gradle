@@ -1,0 +1,13 @@
+rootProject.name = 'cordapp-upgrades'
+
+include 'contracts:v1-contracts'
+include 'contracts:v2-contracts'
+include 'contracts:v3-contracts'
+include 'contracts:v2-contracts-explicit'
+include 'contracts:v2-contracts-legacy-explicit'
+
+include 'workflows:v1-workflows'
+include 'workflows:v2-workflows'
+include 'workflows:v3-workflows'
+
+include ':clients'
