@@ -47,7 +47,7 @@ This version of the contract would be used to perform explicit upgrades for cont
 
 # Implicit Upgrade Scenarios And Steps
 
-##Scenario 1: Initial Deployment, Vehicle Registration and Transfer
+## Scenario 1: Initial Deployment, Vehicle Registration and Transfer
 
 **Step1:** 
 
@@ -83,7 +83,7 @@ Run vaultQuery to validate successful transfer of the vehicle. The state informa
 
     run vaultQuery contractStateType: corda.samples.upgrades.states.VehicleState
     
-##Scenario 2: Flow Upgrade to version 2 for RTO and Party A
+## Scenario 2: Flow Upgrade to version 2 for RTO and Party A
 
 **Step1:** 
 
@@ -108,7 +108,7 @@ pre-registered vehicle from the `RTO`'s shell
  Note the while transfer of the vehicle, the "Collecting Signature from Counterparty" step would be greyed out which means the step was not executed since `Party B` is 
  still on the older version of the flow. However since our new version of the flow is backward compatible we are still able to transact.
 
-##Scenario 3: Flow Upgrade to version 2 for Party B
+## Scenario 3: Flow Upgrade to version 2 for Party B
 
 **Step1:** 
 
@@ -130,7 +130,7 @@ Run the below commands from the `RTO`'s shell to validate the same.
     start RegistrationInitiatorFlow owner: PartyA, redgNumber: MH01C2324 
     start TransferInitiatorFlow newOwner: PartyB, redgNumber: MH01C2323
     
-##Scenario 4: Contract & Flow Upgrade to Introduce New Feature for RTO, Police and PartyA
+## Scenario 4: Contract & Flow Upgrade to Introduce New Feature for RTO, Police and PartyA
 
 **Step1:** 
 
@@ -174,7 +174,7 @@ You can terminate the flow by pressing `Ctrl+C` in the rpc shell.
 
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
 
-##Scenario 5: Contract & Flow Upgrade to Introduce New Feature for PartyB
+## Scenario 5: Contract & Flow Upgrade to Introduce New Feature for PartyB
 
 **Step1:** 
 
@@ -200,7 +200,7 @@ Validate Issue a challan by running be below command from `Police`'s shell & Set
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
     start PayChallanInitiatorFlow value: 5000, redgNumber: MH01C2321
         
-##Scenario 5: Contract Upgrade for PartyA, RTO and Police to Restrict Vehicle Transfer having pending dues.
+## Scenario 5: Contract Upgrade for PartyA, RTO and Police to Restrict Vehicle Transfer having pending dues.
 **Step1:** 
 
 Shutdown the nodes and upgrade the contracts to version 3 for `RTO`, `PartyA` and `Police`
@@ -233,7 +233,7 @@ transaction, without the latest version of the contract. The flows would be chec
 contract version.
      
     
-##Scenario 6: Contract Upgrade to version 3 for PartyB.  
+## Scenario 6: Contract Upgrade to version 3 for PartyB.  
 
 **Step1:** 
 
