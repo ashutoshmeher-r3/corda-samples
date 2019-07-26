@@ -48,6 +48,7 @@ This version of the contract would be used to perform explicit upgrades for cont
 # Implicit Upgrade Scenarios And Steps
 
 ##Scenario 1: Initial Deployment, Vehicle Registration and Transfer
+
 **Step1:** 
 
 Deploy version1 of contracts and flows by running `./gradlew deployNodes` and then run the nodes using `./build/nodes/runnodes`. 
@@ -83,6 +84,7 @@ Run vaultQuery to validate successful transfer of the vehicle. The state informa
     run vaultQuery contractStateType: corda.samples.upgrades.states.VehicleState
     
 ##Scenario 2: Flow Upgrade to version 2 for RTO and Party A
+
 **Step1:** 
 
 Shutdown the nodes and upgrade the flows to version 2 for `RTO` and `PartyA` nodes. Upgrade can be done by using the below script, which would copy
@@ -107,6 +109,7 @@ pre-registered vehicle from the `RTO`'s shell
  still on the older version of the flow. However since our new version of the flow is backward compatible we are still able to transact.
 
 ##Scenario 3: Flow Upgrade to version 2 for Party B
+
 **Step1:** 
 
 Shutdown the nodes and upgrade the flows to version 2 for `PartyB`.
@@ -128,6 +131,7 @@ Run the below commands from the `RTO`'s shell to validate the same.
     start TransferInitiatorFlow newOwner: PartyB, redgNumber: MH01C2323
     
 ##Scenario 4: Contract & Flow Upgrade to Introduce New Feature for RTO, Police and PartyA
+
 **Step1:** 
 
 Shutdown the nodes and upgrade the flows to version 3 and contracts to version 2 for `RTO`, `Police` and `PartyA` nodes. Upgrade can be done by using the below script, which would copy
@@ -171,6 +175,7 @@ You can terminate the flow by pressing `Ctrl+C` in the rpc shell.
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
 
 ##Scenario 5: Contract & Flow Upgrade to Introduce New Feature for PartyB
+
 **Step1:** 
 
 Shutdown the nodes and upgrade the flows to version 3 and contracts to version 2 for `PartyB`.
@@ -229,6 +234,7 @@ contract version.
      
     
 ##Scenario 6: Contract Upgrade to version 3 for PartyB.  
+
 **Step1:** 
 
 Shutdown the nodes and upgrade the contracts to version 3 for `PartyB`
