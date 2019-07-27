@@ -6,6 +6,7 @@ import corda.samples.upgrades.contracts.VehicleContract;
 import corda.samples.upgrades.states.VehicleState;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandWithParties;
+import net.corda.core.contracts.HashAttachmentConstraint;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
@@ -70,7 +71,7 @@ public class RegistrationInitiatorFlow extends FlowLogic<SignedTransaction> {
         final TransactionBuilder transactionBuilder = new TransactionBuilder(notary)
                 .addOutputState(vehicleState)
                 /* Comment yhe above line '.addOutputState(vehicleState)' and uncomment below to use HashAttachemtConstrant for Explicit Upgrade */
-//                .addOutputState(outputState, VehicleContract.ID,
+//                .addOutputState(vehicleState, VehicleContract.ID,
 //                        new HashAttachmentConstraint(getServiceHub().getCordappProvider().getContractAttachmentID(VehicleContract.ID)))
                 .addCommand(registerCommand);
 

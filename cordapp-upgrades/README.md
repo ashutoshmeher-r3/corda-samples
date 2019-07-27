@@ -332,7 +332,7 @@ Comment the line 'addOutputState(vehicleState)' and uncomment the line below it.
 
     // addOutputState(vehicleState)
     /* Comment yhe above line '.addOutputState(vehicleState)' and uncomment below to use HashAttachemtConstrant for Explicit Upgrade */
-       .addOutputState(outputState, VehicleContract.ID,
+       .addOutputState(vehicleState, VehicleContract.ID,
              new HashAttachmentConstraint(getServiceHub().getCordappProvider().getContractAttachmentID(VehicleContract.ID)))
 
 **Step2:** 
