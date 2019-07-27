@@ -6,7 +6,7 @@
 
 This sample show how to upgrade corDapps using implicit and explicit approaches. 
 Signature Constraint (Implicit-Upgrades) introduced in Corda 4 is however the recommended approach to perform upgrades in Corda, since it doesn't 
-requires the heavy weight process of creating upgrade transactions for every state on the ledger of all parties.
+requires the heavyweight process of creating upgrade transactions for every state on the ledger of all parties.
 
 
 ## Contract and Flow Version
@@ -261,4 +261,108 @@ Validate the transfer vehicle flow works after contract version upgrade on all p
 Note that this would fail, because of pending challans, Pay the challans and try again and it should pass.    
 
 
-# Explicit Upgrade Scenarios And Steps
+# Explicit Upgrade Steps
+
+## WhiteListedByZoneAttachmentConstraint
+
+**Step1:** 
+
+Update deployNodes task in root build.gradle, uncomment the below two line in nodeDefaults section
+
+    cordapp project(v2_contract_explicit)
+    cordapp project(v2_contract_legacy_explicit)
+    
+**Step2:**    
+
+Update build.gradle in v1-contracts, uncomment the below lines in contract section
+
+    signing {
+       enabled false
+    }
+    
+**Step3:** 
+
+Clean deploy the nodes and the run the nodes.
+
+    ./gradlew clean deployNodes
+    ./build/nodes/runnodes
+    
+**Step4:** 
+    
+Register two vehicle to `PartyA` and transfer one of them to `PartyB`. Run the below commands from `RTO`'s shell
+
+    start RegistrationInitiatorFlow owner: PartyA, redgNumber: MH01C2321
+    start RegistrationInitiatorFlow owner: PartyA, redgNumber: MH01C2322
+    start TransferInitiatorFlow newOwner: PartyB, redgNumber: MH01C2321
+    
+
+**Step5:**
+
+Run vaultQuery in each party's shell to check the states issued.
+
+    run vaultQuery contractStateType: corda.samples.upgrades.states.VehicleState
+    
+**Step6:**  
+
+Perform explicit upgrade to to the contracts defined in `v2-contracts-explicit` module. It can be done by running the client using below command
+
+    ./gradlew runUpgradeClient
+    
+The client uses the ContractUpgradeFlow to upgrade the contracts and states to a new version. Note that there is some issue calling the 
+ContractUpgradeFlow.Initiate from java, hence we have defined a `ExplicitUpgradeFlow` in `v1-workflows` to do the same.
+
+**Step7:**
+
+Run vaultQuery in each party's shell to check the upgraded states issued. Notice that the old states would have been consumed.
+
+    run vaultQuery contractStateType: corda.samples.upgrades.states.v2.VehicleStateV2    
+
+
+## HashAttachmentConstraint
+
+**Step1:** 
+
+Shutdown the nodes and update the below section in `RegistrationInitiatorFlow` in `v1-workflows`. This can be found in the `call()` method
+Comment the line 'addOutputState(vehicleState)' and uncomment the line below it. This is done so that the state issued used HashAttachmentConstraint.
+
+    // addOutputState(vehicleState)
+    /* Comment yhe above line '.addOutputState(vehicleState)' and uncomment below to use HashAttachemtConstrant for Explicit Upgrade */
+       .addOutputState(outputState, VehicleContract.ID,
+             new HashAttachmentConstraint(getServiceHub().getCordappProvider().getContractAttachmentID(VehicleContract.ID)))
+
+**Step2:** 
+
+Clean deploy the nodes and the run the nodes.
+
+    ./gradlew clean deployNodes
+    ./build/nodes/runnodes
+    
+**Step3:** 
+    
+Register two vehicle to `PartyA` and transfer one of them to `PartyB`. Run the below commands from `RTO`'s shell
+
+    start RegistrationInitiatorFlow owner: PartyA, redgNumber: MH01C2321
+    start RegistrationInitiatorFlow owner: PartyA, redgNumber: MH01C2322
+    start TransferInitiatorFlow newOwner: PartyB, redgNumber: MH01C2321
+    
+
+**Step5:**
+
+Run vaultQuery in each party's shell to check the states issued.
+
+    run vaultQuery contractStateType: corda.samples.upgrades.states.VehicleState
+    
+**Step6:**  
+
+Perform explicit upgrade to to the contracts defined in `v3-contracts-legacy-explicit` module. It can be done by running the client using below command
+
+    ./gradlew runLegacyUpgradeClient
+    
+The client uses the ContractUpgradeFlow to upgrade the contracts and states to a new version. Note that there is some issue calling the 
+ContractUpgradeFlow.Initiate from java, hence we have defined a `ExplicitUpgradeFlow` in `v1-workflows` to do the same.
+
+**Step7:**
+
+Run vaultQuery in each party's shell to check the upgraded states issued. Notice that the old states would have been consumed.
+
+    run vaultQuery contractStateType: corda.samples.upgrades.states.v3.VehicleStateV3
