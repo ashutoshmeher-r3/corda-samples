@@ -156,7 +156,9 @@ Run the below commands from the `RTO`'s shell to validate the same.
     
 You should notice that Register works, but the Transfer fails at the counterparty, that's because `PartyB` is on a different version of the contract and thus cannot validate the transaction. 
 In order for the transaction to execute successfully `PartyB` must also upgrade to the latest version of the contract.  You may also notice that the registration 
-of vehicle to PartyB works fine, that's because PartyB is not a signing party in the transaction hence does not need to run the contract. 
+of vehicle to PartyB works fine, that's because PartyB is not a signing party in the transaction hence does not need to run the contract. However he would not receive 
+the state till he upgrades, since he cannot check the validity of the transaction when he receives the notarised transaction to commit in ledger. The flow would thus 
+checkpoint and would retry after upgrade.
 
     start RegistrationInitiatorFlow owner: PartyB, redgNumber: MH01C2326
     
