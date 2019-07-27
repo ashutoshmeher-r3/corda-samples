@@ -4,7 +4,7 @@
 
 # CorDapp Upgrades
 
-This sample show how to upgrade corDapps using implicit and explicit approaches. 
+This sample shows how to upgrade corDapps using implicit and explicit approaches. 
 Signature Constraint (Implicit-Upgrades) introduced in Corda 4 is however the recommended approach to perform upgrades in Corda, since it doesn't 
 requires the heavyweight process of creating upgrade transactions for every state on the ledger of all parties.
 
@@ -15,24 +15,25 @@ This sample has various versions of contracts and flows which will used to demon
 **Version 1 Contracts & Flows**
 
 Version 1 contracts and flows will be our initial cordapp implementation. Its a simple cordapp on vehicle registration, which contains two flows, 
-one for issuing registration number for the vehicle and other for transferring the vehicle to a new owner. There would be three parties involved - `RTO` 
-(The registering authority), `Party A` and `PartyB`. We assume that both the flows would be initiated by the `RTO`.
+one for issuing registration number for the vehicle and other for transferring the vehicle to a new owner. There would be 3 parties involved - `RTO` 
+(The registering authority), `Party A` and `PartyB`. We assume that both the flows would be initiated by the `RTO`. `Police` party would get 
+involved in the laster part as we upgrade the cordapps to include to features.
 
 **Version 2 Flows**
 
 Version 2 of flows brings a minor change, while version 1 has the owner and new owner of the vehicle as non-signing parties for vehicle transfer flow, 
-this version includes them as signing party.
+this version requires them as signing parties.
 
 **Version 2 Contracts and Version 3 Flows**
 
 Version 2 of contracts introduces a new feature to issue/ pay challan again traffic violation. `Police` party would be issuing the challans 
-and payments against challans could be done by the vehicle owner. Two new state variable are introduced in the Vehicle state (`challanValue` and  
+and payments against challans could be done by the vehicle owner. Two new state variable are introduced in the `VehicleState` (`challanValue` and  
 `challanIssuer`) for this purpose. Corresponding Commands and verify logic are added to the `VehicleContract`. The corresponding flows to accommodate 
 this feature is implemented in version 3 of the flows.
 
 **Version 3 Contracts**
 
-Version 3 contracts updates the transfer verify logic to restrict transfer of vehicle till all challans are paid.
+Version 3 contracts updates the transfer verify logic to restrict transfer of vehicle having pending challan dues.
 
 **Version 2 Explicit**
 
@@ -41,8 +42,9 @@ This version of the contract would be used to perform explicit upgrades. It is e
 
 **Version 2 Legacy Explicit**
 
-This version of the contract would be used to perform explicit upgrades for contracts using hash constraint. It is equivant to version 2 of the contract but the contract implements the 
-`UpgradedLegacyContract` interface which is required for explicit upgrades of contracts using `HashAttachmentConstraint`.
+This version of the contract would be used to perform explicit upgrades for contracts using hash constraint. It is equivant to version 2 
+of the contract but the contract implements the `UpgradedLegacyContract` interface which is required for explicit upgrades of contracts 
+using `HashAttachmentConstraint`.
 
 
 # Implicit Upgrade Scenarios And Steps
@@ -106,7 +108,7 @@ pre-registered vehicle from the `RTO`'s shell
     start TransferInitiatorFlow newOwner: PartyB, redgNumber: MH01C2322
     
  Note the while transfer of the vehicle, the "Collecting Signature from Counterparty" step would be greyed out which means the step was not executed since `Party B` is 
- still on the older version of the flow. However since our new version of the flow is backward compatible we are still able to transact.
+ still on the older version of the flow, which does not have the feature. However since our new version of the flow is backward compatible we are still able to transact.
 
 ## Scenario 3: Flow Upgrade to version 2 for Party B
 
@@ -119,11 +121,11 @@ Shutdown the nodes and upgrade the flows to version 2 for `PartyB`.
 
 **Step2:** 
 
-Restart the nodes. `PartyB` should not also be running version 2 of the flow.
+Restart the nodes. `PartyB` should now also be running version 2 of the flow.
 
 **Step3:** 
 
-Since all the three nodes are now running the upgraded version of the flow, we should be able to see the "Collecting Signature from Counterparty" step working.
+Since all the three nodes are now running the upgraded version of the flow, we should now be able to see the "Collecting Signature from Counterparty" step working.
 Run the below commands from the `RTO`'s shell to validate the same.
     
     // Register Vechile just to make sure its working as well.
@@ -135,7 +137,7 @@ Run the below commands from the `RTO`'s shell to validate the same.
 **Step1:** 
 
 Shutdown the nodes and upgrade the flows to version 3 and contracts to version 2 for `RTO`, `Police` and `PartyA` nodes. Upgrade can be done by using the below script, which would copy
- v3-workflows.jar and v2-contracts.jar to cordapps directory of both the nodes.
+ v3-workflows.jar and v2-contracts.jar to cordapps directory of these the nodes.
 
     cd script
     ./upgrade.sh --node=RTO,PartyA,Police --workflow=3 --contract=2
@@ -195,7 +197,7 @@ Validate Transfer flow works for `PartyB` after the upgrade.
     
 **Step4:** 
 
-Validate Issue a challan by running be below command from `Police`'s shell & Settle Challan by it form `PartyB`'s shell.
+Validate Issue challan by running be below command from `Police`'s shell & Settle Challan from `PartyB`'s shell.
 
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
     start PayChallanInitiatorFlow value: 5000, redgNumber: MH01C2321
@@ -229,8 +231,8 @@ Try to issue Challan on vehicles.
     
 Notice that both of these passes, although `PartyB` is on a different version of the contract, since both of them are non-signing parties and hence contract
 is not executed at their end. However PartyB would not be able to receive the updated state, since he would not be able to validate the validity of the 
-transaction, without the latest version of the contract. The flows would be checkpoints at his end, and the updates would be receive once he moves to the updated
-contract version.
+transaction while receiving the notarized transaction to commit in ledger, without the latest version of the contract. The flows would be checkpoints at his end, 
+and the updates would be received once he moves to the updated contract version.
      
     
 ## Scenario 7: Contract Upgrade to version 3 for PartyB.  
@@ -304,12 +306,13 @@ Run vaultQuery in each party's shell to check the states issued.
     
 **Step6:**  
 
-Perform explicit upgrade to to the contracts defined in `v2-contracts-explicit` module. It can be done by running the client using below command
+Perform explicit upgrade to the contracts defined in `v2-contracts-explicit` module. It can be done by running the client `ExplicitContractUpgradeClient` 
+using below command
 
     ./gradlew runUpgradeClient
     
-The client uses the ContractUpgradeFlow to upgrade the contracts and states to a new version. Note that there is some issue calling the 
-ContractUpgradeFlow.Initiate from java, hence we have defined a `ExplicitUpgradeFlow` in `v1-workflows` to do the same.
+The client uses the `ContractUpgradeFlow` to upgrade the contracts and states to a new version. Note that there is some issue calling the 
+`ContractUpgradeFlow.Initiate` from java, hence we have defined a `ExplicitUpgradeFlow` in `v1-workflows` to do the same.
 
 **Step7:**
 
@@ -354,12 +357,10 @@ Run vaultQuery in each party's shell to check the states issued.
     
 **Step6:**  
 
-Perform explicit upgrade to to the contracts defined in `v3-contracts-legacy-explicit` module. It can be done by running the client using below command
+Perform explicit upgrade to to the contracts defined in `v3-contracts-legacy-explicit` module. It can be done by running the client 
+`ExplicitLegacyContractUpgradeClient` using below command
 
     ./gradlew runLegacyUpgradeClient
-    
-The client uses the ContractUpgradeFlow to upgrade the contracts and states to a new version. Note that there is some issue calling the 
-ContractUpgradeFlow.Initiate from java, hence we have defined a `ExplicitUpgradeFlow` in `v1-workflows` to do the same.
 
 **Step7:**
 
