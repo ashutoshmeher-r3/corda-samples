@@ -15,6 +15,7 @@ import java.util.List;
 @BelongsToContract(VehicleContract.class)
 public class VehicleState implements ContractState {
 
+    // The registration number issued to the vehicle being registered.
     private final String redgNumber;
     private final Party owner;
     //Registering Authority

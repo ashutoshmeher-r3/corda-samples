@@ -19,7 +19,8 @@ one for issuing registration number for the vehicle and other for transferring t
 , `Party A` and `PartyB`. We assume 
 that both the flows would be initiated by the `RTO`. `Police` party would get involved in the later part as we upgrade our cordapps to include new features.
 
-    Regional Transport Office (RTO), is the registering authority who registers vehicle and issue registration numbers for them.
+    Regional Transport Office (RTO), is the registering authority who registers vehicle 
+    and issue registration numbers for them.
 
 **Version 2 Flows**
 
@@ -33,8 +34,9 @@ and payments against challans could be done by the vehicle owner. Two new state 
 `challanIssuer`) for this purpose. Corresponding Commands and verify logic are added to the `VehicleContract`. The corresponding flows to accommodate 
 this feature is implemented in version 3 of the flows.
 
-    Challans are offical documents, issued by police against traffic rule violation fines. It is generally used a receipt for payment. Challan value here refers
-    to the fine amount charged against traffic rule violation.
+    Challans are offical documents, issued by police against traffic rule violation fines. 
+    It is generally used as a receipt for payment. Challan value here refers to the fine 
+    amount charged against traffic rule violation.
 
 **Version 3 Contracts**
 
