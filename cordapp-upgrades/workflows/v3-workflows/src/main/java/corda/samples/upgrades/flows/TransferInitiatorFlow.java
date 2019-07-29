@@ -61,7 +61,8 @@ public class TransferInitiatorFlow extends FlowLogic<SignedTransaction>{
         // Get Own Identity
         Party rto  = getOurIdentity();
 
-        //Fetch stateAndRef from Vault using vaultQuery.
+        //Use vaultQuery to fetch all VehicleState and then use a filter to find the VehicleState corresponding to the registration number.
+        //This resulting state will be used a input for our vehicle transfer transaction.
         List<StateAndRef<VehicleState>> stateStateAndRef = getServiceHub().getVaultService().queryBy(VehicleState.class).getStates();
         StateAndRef<VehicleState> inputStateAndRef = stateStateAndRef.stream().filter(vehicleStateAndRef -> {
             VehicleState vehicleState = vehicleStateAndRef.getState().getData();

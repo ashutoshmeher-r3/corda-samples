@@ -70,7 +70,7 @@ public class RegistrationInitiatorFlow extends FlowLogic<SignedTransaction> {
         //Build the Transaction Builder
         final TransactionBuilder transactionBuilder = new TransactionBuilder(notary)
                 .addOutputState(vehicleState)
-                /* Comment yhe above line '.addOutputState(vehicleState)' and uncomment below to use HashAttachemtConstrant for Explicit Upgrade */
+                /* Comment the above line '.addOutputState(vehicleState)' and uncomment below to use HashAttachemtConstrant for Explicit Upgrade */
 //                .addOutputState(vehicleState, VehicleContract.ID,
 //                        new HashAttachmentConstraint(getServiceHub().getCordappProvider().getContractAttachmentID(VehicleContract.ID)))
                 .addCommand(registerCommand);

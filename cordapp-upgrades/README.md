@@ -16,8 +16,8 @@ This sample has various versions of contracts and flows which will used to demon
 
 Version 1 contracts and flows will be our initial cordapp implementation. Its a simple cordapp on vehicle registration, which contains two flows, 
 one for issuing registration number for the vehicle and other for transferring the vehicle to a new owner. There would be 3 parties involved - `RTO` 
-(The registering authority), `Party A` and `PartyB`. We assume that both the flows would be initiated by the `RTO`. `Police` party would get 
-involved in the laster part as we upgrade the cordapps to include to features.
+(Regional Transport Office, It is the registering authority who registers vehicle and issue registration numbers), `Party A` and `PartyB`. We assume 
+that both the flows would be initiated by the `RTO`. `Police` party would get involved in the later part as we upgrade our cordapps to include new features.
 
 **Version 2 Flows**
 
