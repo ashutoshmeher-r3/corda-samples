@@ -211,21 +211,22 @@ Validate Issue challan by running be below command from `Police`'s shell & Settl
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
     start PayChallanInitiatorFlow value: 5000, redgNumber: MH01C2321
         
-## Scenario 6: Contract Upgrade for PartyA, RTO and Police to Restrict Vehicle Transfer having pending dues.
+## Scenario 6: Contract Upgrade for PartyA, PartyB and Police to new version of contract which Restrict Vehicle Transfer having pending dues.
 **Step1:** 
 
-Shutdown the nodes and upgrade the contracts to version 3 for `RTO`, `PartyA` and `Police`
+Shutdown the nodes and upgrade the contracts to version 3 for `PartyA`, `PartyB` and `Police`
 
     cd script
-    ./upgrade.sh --node=RTO,PartyA,Police --contract=3
+    ./upgrade.sh --node=PartyA,PartyB,Police --contract=3
     
 **Step2:** 
 
-Restart the nodes. `RTO`, `Police` and `PartyA` should now be running version 3 of contracts while `PartyB` would still be running versions 2.
+Restart the nodes. `PartyA`, `PartyB` and `Police` should now be running version 3 of contracts while `RTO` would still be running versions 2.
 
 **Step3:** 
 
-Try to initiate transfer flow, this should fail, since all the signing parties are not on the same version of the contract.
+Try to initiate transfer flow, this should complete successfully even though `RTO` is running the older version, he is still able to transact. This is the 
+benefit to implicit upgrades which allows parties with older version to still be able to transact, irrespective other parties are on upgraded versions.
 
     start TransferInitiatorFlow newOwner: PartyA, redgNumber: MH01C2321
     
@@ -233,33 +234,33 @@ Try to initiate transfer flow, this should fail, since all the signing parties a
 
 Try to issue Challan on vehicles.    
     
-    //Vehicle owned by PartyB
     start IssueChallanInitiatorFlow redgNumber: MH01C2321, rto: RTO, challanValue: 5000
-    //Vehicle owned by PartyA
-    start IssueChallanInitiatorFlow redgNumber: MH01C2325, rto: RTO, challanValue: 5000
     
-Notice that both of these passes, although `PartyB` is on a different version of the contract, since both of them are non-signing parties and hence contract
-is not executed at their end. However PartyB would not be able to receive the updated state, since he would not be able to validate the validity of the 
+Notice that the above flow passes successfully, although `RTO` is on a different version of the contract, since `RTO` is a non-signing party and hence contract
+is not executed at his end. However `RTO` would not be able to receive the updated state, since he would not be able to validate the validity of the 
 transaction while receiving the notarized transaction to commit in ledger, without the latest version of the contract. The flows would be checkpoints at his end, 
-and the updates would be received once he moves to the updated contract version.
+and the updates would be received once he moves to the updated contract version. 
+
+Had `RTO` been a signing party, the transaction would have failed to validate, since `RTO` would not be able to validate a state against the new contract as he
+has not upgraded to the latest version.
      
     
-## Scenario 7: Contract Upgrade to version 3 for PartyB.  
+## Scenario 7: Contract Upgrade to version 3 for RTO.  
 
 **Step1:** 
 
-Shutdown the nodes and upgrade the contracts to version 3 for `PartyB`
+Shutdown the nodes and upgrade the contracts to version 3 for `RTO`
 
     cd script
-    ./upgrade.sh --node=PartyB --contract=3
+    ./upgrade.sh --node=RTO --contract=3
     
 **Step2:** 
 
-Restart the nodes. `PartyB` should now be running version 3 of contract.
+Restart the nodes. `RTO` should now be running version 3 of contract.
 
 **Step3:** 
 
-Run vaultQuery to check if `PartyB` has received the updated states after the version upgrade.
+Run vaultQuery to check if `RTO` has received the updated states after the version upgrade.
 
     run vaultQuery contractStateType: corda.samples.upgrades.states.VehicleState
     

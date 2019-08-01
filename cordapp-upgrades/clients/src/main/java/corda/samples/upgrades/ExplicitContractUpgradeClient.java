@@ -40,15 +40,13 @@ public class ExplicitContractUpgradeClient {
 
         Thread.sleep(10000);
 
-        ImmutableList.of(proxyA, proxyB).forEach( proxy -> {
-            proxy.vaultQuery(VehicleState.class).getStates()
-                    .stream().filter(vehicleStateStateAndRef -> {
-                return vehicleStateStateAndRef.getState().getContract().equals(corda.samples.upgrades.contracts.VehicleContract.ID);
-            }).forEach(vehicleStateStateAndRef -> {
-                System.out.println("--------Calling Upgrade--------");
-                System.out.println("Upgrade:" + vehicleStateStateAndRef);
-                proxy.startFlowDynamic(ExplicitUpgradeFlow.class, vehicleStateStateAndRef, VehicleContractV2.class);
-            });
+        proxyRTO.vaultQuery(VehicleState.class).getStates()
+                .stream().filter(vehicleStateStateAndRef -> {
+            return vehicleStateStateAndRef.getState().getContract().equals(corda.samples.upgrades.contracts.VehicleContract.ID);
+        }).forEach(vehicleStateStateAndRef -> {
+            System.out.println("--------Calling Upgrade--------");
+            System.out.println("Upgrade:" + vehicleStateStateAndRef);
+            proxyRTO.startFlowDynamic(ExplicitUpgradeFlow.class, vehicleStateStateAndRef, VehicleContractV2.class);
         });
 
     }
