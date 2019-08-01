@@ -103,8 +103,8 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
-        cordapp project(v2_contract)
-        cordapp project(v3_workflow)
+        cordapp project(v1_contract)
+        cordapp project(v1_workflow)
 
         /* Uncomment to run explicit Upgrades */
         //cordapp project(v2_contract_explicit)
