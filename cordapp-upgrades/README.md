@@ -29,7 +29,7 @@ this version requires them as signing parties.
 
 **Version 2 Contracts and Version 3 Flows**
 
-Version 2 of contracts introduces a new feature to issue/ pay challan again traffic violation. `Police` party would be issuing the challans 
+Version 2 of contracts introduces a new feature to issue/ pay challan again traffic rule violation. `Police` party would be issuing the challans 
 and payments against challans could be done by the vehicle owner. Two new state variable are introduced in the `VehicleState` (`challanValue` and  `challanIssuer`) for 
 this purpose. Corresponding Commands and verify logic are added to the `VehicleContract`. The corresponding flows to accommodate 
 this feature is implemented in version 3 of the flows.
