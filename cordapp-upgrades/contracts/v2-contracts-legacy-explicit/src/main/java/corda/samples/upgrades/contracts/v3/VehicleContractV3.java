@@ -64,8 +64,9 @@ public class VehicleContractV3 implements UpgradedContractWithLegacyConstraint<V
     @NotNull
     @Override
     public AttachmentConstraint getLegacyContractConstraint() {
-        // Return the HashAttachment Constraint of the previous jar. Calculate the SHA256 hash of the jar file.
-        return new HashAttachmentConstraint(SecureHash.parse("92F25AD232C099F6BD309B0E99E9C7DF6C62A59C8C8CEA96920E23338D1212E8"));
+        // Return the HashAttachment Constraint of the previous jar. Calculate the SHA256 hash of v1-contracts.jar file.
+        // Run the CalculateSHA256Hash.java in the client module. It outputs the SHA256 hash on the console.
+        return new HashAttachmentConstraint(SecureHash.parse("82F5D2FC022D1D8BE24AEEF6BCD1AF1CA908E277A44AE2D3CE86C6B9DE7892DC"));
     }
 
     @NotNull
