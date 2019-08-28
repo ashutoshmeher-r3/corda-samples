@@ -1,16 +1,15 @@
 package net.corda.samples.schema;
 
-import net.corda.core.schemas.PersistentState;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "VEHICLE_DETAIL")
-public class PersistentVehicle extends PersistentState {
+public class PersistentVehicle {
 
-    @Column private final String registrationNumber;
+    @Column @Id private final String registrationNumber;
     @Column private final String chasisNumber;
     @Column private final String make;
     @Column private final String model;
@@ -28,7 +27,8 @@ public class PersistentVehicle extends PersistentState {
         this.fuelType = null;
     }
 
-    public PersistentVehicle(String registrationNumber, String chasisNumber, String make, String model, String variant, String color, String fuelType) {
+    public PersistentVehicle(String registrationNumber, String chasisNumber, String make, String model, String variant,
+                             String color, String fuelType) {
         this.registrationNumber = registrationNumber;
         this.chasisNumber = chasisNumber;
         this.make = make;
@@ -65,4 +65,5 @@ public class PersistentVehicle extends PersistentState {
     public String getFuelType() {
         return fuelType;
     }
+
 }

@@ -7,9 +7,9 @@ import net.corda.core.transactions.LedgerTransaction;
 // ************
 // * Contract *
 // ************
-public class VehicleContract implements Contract {
+public class InsuranceContract implements Contract {
     // This is used to identify our contract when building a transaction.
-    public static final String ID = "VehicleContract";
+    public static final String ID = "InsuranceContract";
 
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
     // does not throw an exception.
@@ -18,6 +18,6 @@ public class VehicleContract implements Contract {
 
     // Used to indicate the transaction's intent.
     public interface Commands extends CommandData {
-        class VehicleSale implements Commands {}
+        class IssueInsurance implements Commands {}
     }
 }

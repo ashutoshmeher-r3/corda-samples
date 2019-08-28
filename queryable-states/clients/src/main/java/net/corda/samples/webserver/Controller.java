@@ -2,9 +2,8 @@ package net.corda.samples.webserver;
 
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.samples.flows.VehicleInsuranceFlow;
-import net.corda.samples.flows.VehicleInsuranceInfo;
-import net.corda.samples.flows.VehicleSaleFlow;
+import net.corda.samples.flows.IssueInsuranceFlow;
+import net.corda.samples.flows.InsuranceInfo;
 import net.corda.samples.flows.VehicleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,24 +24,24 @@ public class Controller {
         this.proxy = rpc.proxy;
     }
 
-    @PostMapping(value = "/vehicleSale")
-    private String vehicleSale(@RequestBody VehicleInfo vehicleData) {
-
-        Set<Party> matchingParties = proxy.partiesFromName(vehicleData.getOwner().toString(), false);
-
-        proxy.startFlowDynamic(VehicleSaleFlow.VehicleSaleInitiator.class, vehicleData,
-                matchingParties.iterator().next());
-        return "Vehicle Sale Completed";
-    }
+//    @PostMapping(value = "/vehicleSale")
+//    private String vehicleSale(@RequestBody VehicleInfo vehicleData) {
+//
+//        Set<Party> matchingParties = proxy.partiesFromName(vehicleData.getOwner().toString(), false);
+//
+//        proxy.startFlowDynamic(VehicleSaleFlow.VehicleSaleInitiator.class, vehicleData,
+//                matchingParties.iterator().next());
+//        return "VehicleDetail Sale Completed";
+//    }
 
     @PostMapping(value = "/vehicleInsurance/{insuree}")
-    private String vehicleSale(@RequestBody VehicleInsuranceInfo vehicleInsuranceInfo, @PathVariable String insuree) {
+    private String vehicleSale(@RequestBody InsuranceInfo vehicleInsuranceInfo, @PathVariable String insuree) {
 
         Set<Party> matchingParties = proxy.partiesFromName(insuree, false);
 
 
-        proxy.startFlowDynamic(VehicleInsuranceFlow.VehicleInsuranceInitiator.class, vehicleInsuranceInfo,
-                matchingParties.iterator().next(), vehicleInsuranceInfo.getRegistrationNumber());
-        return "Vehicle Sale Completed";
+        proxy.startFlowDynamic(IssueInsuranceFlow.IssueInsuranceInitiator.class, vehicleInsuranceInfo,
+                matchingParties.iterator().next());
+        return "Issue Insurance Completed";
     }
 }

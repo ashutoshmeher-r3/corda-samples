@@ -1,10 +1,10 @@
-package net.corda.samples.flows;
+package net.corda.samples.states;
 
-import net.corda.core.identity.Party;
+
 import net.corda.core.serialization.CordaSerializable;
 
 @CordaSerializable
-public class VehicleInfo {
+public class VehicleDetail {
 
     private final String registrationNumber;
     private final String chasisNumber;
@@ -14,8 +14,8 @@ public class VehicleInfo {
     private final String color;
     private final String fuelType;
 
-    public VehicleInfo(String registrationNumber, String chasisNumber, String make, String model, String variant,
-                       String color, String fuelType) {
+    public VehicleDetail(String registrationNumber, String chasisNumber, String make, String model, String variant,
+                         String color, String fuelType) {
         this.registrationNumber = registrationNumber;
         this.chasisNumber = chasisNumber;
         this.make = make;
@@ -52,5 +52,4 @@ public class VehicleInfo {
     public String getFuelType() {
         return fuelType;
     }
-
 }

@@ -107,7 +107,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapps.clear()
     }
     node {
-        name "O=Dealer,L=London,C=GB"
+        name "O=Insurer,L=London,C=GB"
         p2pPort 10005
         rpcSettings {
             address("localhost:10006")
@@ -117,7 +117,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         extraConfig = ['h2Settings.address' : 'localhost:20041']
     }
     node {
-        name "O=Owner,L=New York,C=US"
+        name "O=Insuree,L=New York,C=US"
         p2pPort 10008
         rpcSettings {
             address("localhost:10009")
@@ -125,16 +125,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
         extraConfig = ['h2Settings.address' : 'localhost:20042']
-    }
-    node {
-        name "O=Insurer,L=New York,C=US"
-        p2pPort 10011
-        rpcSettings {
-            address("localhost:10012")
-            adminAddress("localhost:10052")
-        }
-        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
-        extraConfig = ['h2Settings.address' : 'localhost:20043']
     }
 }
 
