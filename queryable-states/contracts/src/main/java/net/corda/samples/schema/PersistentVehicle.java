@@ -1,15 +1,20 @@
 package net.corda.samples.schema;
 
+import net.corda.core.schemas.PersistentState;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Random;
+import java.util.UUID;
 
 @Entity
 @Table(name = "VEHICLE_DETAIL")
-public class PersistentVehicle {
+public class PersistentVehicle  {
 
-    @Column @Id private final String registrationNumber;
+    @Id private final UUID id;
+    @Column private final String registrationNumber;
     @Column private final String chasisNumber;
     @Column private final String make;
     @Column private final String model;
@@ -18,6 +23,7 @@ public class PersistentVehicle {
     @Column private final String fuelType;
 
     public PersistentVehicle() {
+        this.id = null;
         this.registrationNumber = null;
         this.chasisNumber = null;
         this.make = null;
@@ -29,6 +35,7 @@ public class PersistentVehicle {
 
     public PersistentVehicle(String registrationNumber, String chasisNumber, String make, String model, String variant,
                              String color, String fuelType) {
+        this.id = UUID.randomUUID();
         this.registrationNumber = registrationNumber;
         this.chasisNumber = chasisNumber;
         this.make = make;
@@ -36,6 +43,10 @@ public class PersistentVehicle {
         this.variant = variant;
         this.color = color;
         this.fuelType = fuelType;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getRegistrationNumber() {

@@ -19,5 +19,6 @@ public class InsuranceContract implements Contract {
     // Used to indicate the transaction's intent.
     public interface Commands extends CommandData {
         class IssueInsurance implements Commands {}
+        class AddClaim implements Commands {}
     }
 }

@@ -9,10 +9,12 @@ import net.corda.core.schemas.PersistentState;
 import net.corda.core.schemas.QueryableState;
 import net.corda.samples.contracts.InsuranceContract;
 import net.corda.samples.schema.InsuranceSchemaV1;
+import net.corda.samples.schema.PersistentClaim;
 import net.corda.samples.schema.PersistentInsurance;
 import net.corda.samples.schema.PersistentVehicle;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @BelongsToContract(InsuranceContract.class)
@@ -46,9 +48,22 @@ public class Insurance implements QueryableState {
     @Override
     public PersistentState generateMappedObject(@NotNull MappedSchema schema) {
         if(schema instanceof InsuranceSchemaV1){
+            List<PersistentClaim> persistentClaims = new ArrayList<>();
+            if(claims != null && claims.size() > 0) {
+                for(Claim claim: claims){
+                    PersistentClaim persistentClaim = new PersistentClaim(
+                            claim.getClaimNumber(),
+                            claim.getClaimDescription(),
+                            claim.getClaimAmount()
+                    );
+                    persistentClaims.add(persistentClaim);
+                }
+            }
+
             return new PersistentInsurance(
                     this.policyNumber,
                     this.insuredValue,
+                    this.duration,
                     this.premium,
                     this.vehicleDetail==null ? null : new PersistentVehicle(
                             vehicleDetail.getRegistrationNumber(),
@@ -59,7 +74,7 @@ public class Insurance implements QueryableState {
                             vehicleDetail.getColor(),
                             vehicleDetail.getFuelType()
                     ),
-                    this.claims == null? null:
+                    this.claims == null? null: persistentClaims
             );
         }else{
             throw new IllegalArgumentException("Unsupported Schema");

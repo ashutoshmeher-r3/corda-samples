@@ -1,6 +1,5 @@
 package net.corda.samples.flows;
 
-import net.corda.core.identity.Party;
 import net.corda.core.serialization.CordaSerializable;
 
 @CordaSerializable
@@ -13,14 +12,11 @@ public class InsuranceInfo {
     private final int duration;
     private final int premium;
 
-    private final String insuree;
-
-    public InsuranceInfo(String policyNumber, long insuredValue, int duration, int premium, String insuree, VehicleInfo vehicleInfo) {
+    public InsuranceInfo(String policyNumber, long insuredValue, int duration, int premium, VehicleInfo vehicleInfo) {
         this.policyNumber = policyNumber;
         this.insuredValue = insuredValue;
         this.duration = duration;
         this.premium = premium;
-        this.insuree = insuree;
         this.vehicleInfo = vehicleInfo;
     }
 
@@ -38,10 +34,6 @@ public class InsuranceInfo {
 
     public int getPremium() {
         return premium;
-    }
-
-    public String getInsuree() {
-        return insuree;
     }
 
     public VehicleInfo getVehicleInfo() {
