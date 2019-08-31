@@ -22,20 +22,29 @@ public class Controller {
         this.proxy = rpc.proxy;
     }
 
+    /*
+    * API to trigger the Insurance Issuance flow.
+    **/
     @PostMapping(value = "/vehicleInsurance/{insuree}")
-    private String vehicleSale(@RequestBody InsuranceInfo vehicleInsuranceInfo, @PathVariable String insuree) {
+    private String vehicleSale(@RequestBody InsuranceInfo insuranceInfo, @PathVariable String insuree) {
 
+        // Get the Party object from the partyName.
         Set<Party> matchingParties = proxy.partiesFromName(insuree, false);
 
-
-        proxy.startFlowDynamic(IssueInsuranceFlow.IssueInsuranceInitiator.class, vehicleInsuranceInfo,
+        // Trigger IssueInsuranceInitiator flow.
+        proxy.startFlowDynamic(IssueInsuranceFlow.IssueInsuranceInitiator.class, insuranceInfo,
                 matchingParties.iterator().next());
         return "Issue Insurance Completed";
     }
 
+    /*
+     * API to trigger the Insurance Claim flow. It accepts the claim containing details of the claim and the
+     * policyNumber of the insurance in passed as path variable.
+     **/
     @PostMapping(value = "/vehicleInsurance/claim/{policyNumber}")
     private String claim(@RequestBody ClaimInfo claimInfo, @PathVariable String policyNumber) {
 
+        // Trigger InsuranceClaimInitiator flow.
         proxy.startFlowDynamic(InsuranceClaimFlow.InsuranceClaimInitiator.class, claimInfo, policyNumber);
         return "Insurance Claim Completed";
     }
