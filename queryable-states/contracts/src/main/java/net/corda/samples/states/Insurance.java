@@ -17,11 +17,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Insurance State
+ * The state should implement the QueryableState to support custom schema development.
+ */
 @BelongsToContract(InsuranceContract.class)
 public class Insurance implements QueryableState {
 
+    // Represents the asset which is insured.
+    // This will be used to demonstrate one-to-one relationship
     private final VehicleDetail vehicleDetail;
 
+    // Fields related to the insurance state.
     private final String policyNumber;
     private final long insuredValue;
     private final int duration;
@@ -30,6 +37,8 @@ public class Insurance implements QueryableState {
     private final Party insurer;
     private final Party insuree;
 
+    // Insurance claims made against the insurace policy
+    // This will be used to demonstrate one-to-many relationship
     private final List<Claim> claims;
 
     public Insurance(String policyNumber, long insuredValue, int duration, int premium, Party insurer,
@@ -44,10 +53,20 @@ public class Insurance implements QueryableState {
         this.claims = claims;
     }
 
+    /**
+     * Used to Generate the Entity for this Queryable State.
+     * This method is called by the SchemaService of the node, and the returned entity is handed over to the ORM tool
+     * to be persisted in custom database table.
+     *
+     * @param schema
+     * @return PersistentState
+     */
     @NotNull
     @Override
     public PersistentState generateMappedObject(@NotNull MappedSchema schema) {
         if(schema instanceof InsuranceSchemaV1){
+
+            // Create list of PersistentClaim entity against every Claims object.
             List<PersistentClaim> persistentClaims = new ArrayList<>();
             if(claims != null && claims.size() > 0) {
                 for(Claim claim: claims){
@@ -81,6 +100,11 @@ public class Insurance implements QueryableState {
         }
     }
 
+    /**
+     * Returns a list of supported Schemas by this Queryable State.
+     *
+     * @return Iterable<MappedSchema>
+     */
     @NotNull
     @Override
     public Iterable<MappedSchema> supportedSchemas() {

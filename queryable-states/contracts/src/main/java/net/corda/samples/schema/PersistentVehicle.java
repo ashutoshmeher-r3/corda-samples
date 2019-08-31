@@ -9,6 +9,9 @@ import javax.persistence.Table;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * JPA Entity for saving vehicle details to the database table
+ */
 @Entity
 @Table(name = "VEHICLE_DETAIL")
 public class PersistentVehicle  {
@@ -22,6 +25,9 @@ public class PersistentVehicle  {
     @Column private final String color;
     @Column private final String fuelType;
 
+    /**
+     * Default constructor required by Hibernate
+     */
     public PersistentVehicle() {
         this.id = null;
         this.registrationNumber = null;

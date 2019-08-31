@@ -3,6 +3,10 @@ package net.corda.samples.schema;
 import javax.persistence.*;
 import java.util.UUID;
 
+
+/**
+ * JPA Entity for saving claim details to the database table
+ */
 @Entity
 @Table(name = "CLAIM_DETAIL")
 public class PersistentClaim {
@@ -12,6 +16,9 @@ public class PersistentClaim {
     @Column private final String claimDescription;
     @Column private final Integer claimAmount;
 
+    /**
+     * Default constructor required by Hibernate
+     */
     public PersistentClaim() {
         this.id = null;
         this.claimNumber = null;

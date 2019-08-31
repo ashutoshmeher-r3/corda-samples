@@ -4,7 +4,6 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
-import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.samples.contracts.InsuranceContract;
@@ -34,6 +33,9 @@ public class InsuranceClaimFlow {
         @Suspendable
         public SignedTransaction call() throws FlowException {
 
+            // Query the vault to fetch a list of all Insurance state, and filter the results based on the policyNumber
+            // to fetch the desired Insurance state from the vault. This filtered state would be used as input to the
+            // transaction.
             List<StateAndRef<Insurance>> insuranceStateAndRefs = getServiceHub().getVaultService()
                     .queryBy(Insurance.class).getStates();
 
@@ -54,17 +56,24 @@ public class InsuranceClaimFlow {
                 claims.add(claim);
             }
 
+            //Create the output state
             Insurance output = new Insurance(input.getPolicyNumber(), input.getInsuredValue(),
                     input.getDuration(), input.getPremium(), input.getInsurer(), input.getInsuree(),
                     input.getVehicleDetail(), claims);
 
+            // Build the transaction.
             TransactionBuilder transactionBuilder = new TransactionBuilder(inputStateAndRef.getState().getNotary())
                     .addInputState(inputStateAndRef)
                     .addOutputState(output)
                     .addCommand(new InsuranceContract.Commands.AddClaim(), ImmutableList.of(getOurIdentity().getOwningKey()));
 
+            // Verify the transaction
+            transactionBuilder.verify(getServiceHub());
+
+            // Sign the transaction
             SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
 
+            // Call finality Flow
             FlowSession counterpartySession = initiateFlow(input.getInsuree());
             return subFlow(new FinalityFlow(signedTransaction, ImmutableList.of(counterpartySession)));
         }

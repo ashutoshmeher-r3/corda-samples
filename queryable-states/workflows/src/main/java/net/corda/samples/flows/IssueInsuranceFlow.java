@@ -45,16 +45,23 @@ public class IssueInsuranceFlow {
                     vehicleInfo.getChasisNumber(), vehicleInfo.getMake(), vehicleInfo.getModel(),
                     vehicleInfo.getVariant(), vehicleInfo.getColor(), vehicleInfo.getFuelType());
 
+            // Build the insurance output state.ß
             Insurance insurance = new Insurance(insuranceInfo.getPolicyNumber(), insuranceInfo.getInsuredValue(),
                     insuranceInfo.getDuration(), insuranceInfo.getPremium(), insurer, insuree, vehicleDetail,
                     null);
 
+            // Build the transaction
             TransactionBuilder builder = new TransactionBuilder(notary)
                 .addOutputState(insurance)
                 .addCommand(new InsuranceContract.Commands.IssueInsurance(), ImmutableList.of(insurer.getOwningKey()));
 
+            // Verify the transaction
+            builder.verify(getServiceHub());
+
+            // Sign the transaction
             SignedTransaction selfSignedTransaction = getServiceHub().signInitialTransaction(builder);
 
+            // Call finality Flow
             FlowSession ownerSession = initiateFlow(insuree);
             return subFlow(new FinalityFlow(selfSignedTransaction, ImmutableList.of(ownerSession)));
         }

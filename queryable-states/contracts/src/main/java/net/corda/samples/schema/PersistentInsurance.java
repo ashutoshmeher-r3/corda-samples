@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+
+/**
+ * JPA Entity for saving insurance details to the database table
+ */
 @Entity
 @Table(name = "INSURANCE_DETAIL")
 public class PersistentInsurance extends PersistentState implements Serializable {
@@ -29,6 +33,9 @@ public class PersistentInsurance extends PersistentState implements Serializable
     })
     private List<PersistentClaim> claims;
 
+    /**
+     * Default constructor required by Hibernate
+     */
     public PersistentInsurance() {
         this.policyNumber = null;
         this.insuredValue = null;

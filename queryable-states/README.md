@@ -32,22 +32,22 @@ Use the command `./gradlew bootRun` in the project root folder to run the Spring
 Server.
 
 The Postman collection containing API's calls to the REST endpoints can be imported 
-from the below link. Use the option Import > Import from Link option in Postman 
-to import the collection.
-https://www.getpostman.com/collections/ddc01c13b8ab4b5e853b
+from the link: https://www.getpostman.com/collections/ddc01c13b8ab4b5e853b. 
+Use the option Import > Import from Link option in Postman to import the collection.
 
 <p align="center">
-  <img src="" alt="Postman Import Collection">
+  <img src="https://raw.githubusercontent.com/ashutoshmeher-r3/corda-samples/queryable-state-v1/queryable-states/clients/src/main/resources/static/Postman_screenshot.png" alt="Postman Import Collection" width="400">
 </p>
 
 ## Connecting to the Database
 The JDBC url to connect to the database would be printed in the console in node 
-startup. Use the url to connect to the database using a suitable client. You 
-could download H2 Console to connect to h2 database here: 
+startup. Use the url to connect to the database using a suitable client. The 
+default username is 'sa' and password is '' (blank).
+You could download H2 Console to connect to h2 database here: 
 http://www.h2database.com/html/download.html
 
 <p align="center">
-  <img src="" alt="Database URL">
+  <img src="https://raw.githubusercontent.com/ashutoshmeher-r3/corda-samples/queryable-state-v1/queryable-states/clients/src/main/resources/static/JDBC-url.png" alt="Database URL" width="400">
 </p>
 
 Refer here for more details regarding connecting to the node database.
