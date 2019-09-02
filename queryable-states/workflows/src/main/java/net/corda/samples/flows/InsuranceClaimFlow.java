@@ -39,8 +39,8 @@ public class InsuranceClaimFlow {
             List<StateAndRef<Insurance>> insuranceStateAndRefs = getServiceHub().getVaultService()
                     .queryBy(Insurance.class).getStates();
 
-            StateAndRef<Insurance> inputStateAndRef = insuranceStateAndRefs.stream().filter(vehicleStateAndRef -> {
-                Insurance insuranceState = vehicleStateAndRef.getState().getData();
+            StateAndRef<Insurance> inputStateAndRef = insuranceStateAndRefs.stream().filter(insuranceStateAndRef -> {
+                Insurance insuranceState = insuranceStateAndRef.getState().getData();
                 return insuranceState.getPolicyNumber().equals(policyNumber);
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Policy Not Found"));
 
