@@ -2,6 +2,7 @@ package net.corda.samples.flows;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.Amount;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
@@ -11,7 +12,9 @@ import net.corda.samples.contracts.AuctionContract;
 import net.corda.samples.states.AuctionState;
 
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
+import java.util.UUID;
 
 public class BidFlow {
 
@@ -19,12 +22,12 @@ public class BidFlow {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class BidInitiator extends FlowLogic<SignedTransaction>{
+    public static class Initiator extends FlowLogic<SignedTransaction>{
 
-        private final Long bidAmount;
-        private final String auctionId;
+        private final Amount<Currency> bidAmount;
+        private final UUID auctionId;
 
-        public BidInitiator(Long bidAmount, String auctionId) {
+        public Initiator(Amount<Currency> bidAmount, UUID auctionId) {
             this.bidAmount = bidAmount;
             this.auctionId = auctionId;
         }
@@ -41,7 +44,7 @@ public class BidFlow {
 
             StateAndRef<AuctionState> inputStateAndRef = auntionStateAndRefs.stream().filter(auctionStateAndRef -> {
                 AuctionState auctionState = auctionStateAndRef.getState().getData();
-                return auctionState.getAuctionId().toString().equals(auctionId);
+                return auctionState.getAuctionId().equals(auctionId);
             }).findAny().orElseThrow(() -> new IllegalArgumentException("Auction Not Found"));
 
 
@@ -49,9 +52,9 @@ public class BidFlow {
 
 
             //Create the output state
-            AuctionState output = new AuctionState(input.getAuctionId(), input.getBasePrice(), bidAmount,
-                    getOurIdentity(), input.getBidEndTime(), null, true, input.getAuctioner(),
-                    input.getBidders(), null);
+            AuctionState output = new AuctionState(input.getAuctionItem(), input.getAuctionId(), input.getBasePrice(),
+                    bidAmount, getOurIdentity(), input.getBidEndTime(), null, true,
+                    input.getAuctioneer(), input.getBidders(), null);
 
             // Build the transaction
             TransactionBuilder builder = new TransactionBuilder(inputStateAndRef.getState().getNotary())
@@ -72,17 +75,17 @@ public class BidFlow {
             for(Party bidder: bidders)
                 allSessions.add(initiateFlow(bidder));
 
-            allSessions.add(initiateFlow(input.getAuctioner()));
+            allSessions.add(initiateFlow(input.getAuctioneer()));
             return subFlow(new FinalityFlow(selfSignedTransaction, ImmutableList.copyOf(allSessions)));
         }
     }
 
-    @InitiatedBy(BidInitiator.class)
-    public static class BidResponder extends FlowLogic<SignedTransaction> {
+    @InitiatedBy(Initiator.class)
+    public static class Responder extends FlowLogic<SignedTransaction> {
 
         private FlowSession counterpartySession;
 
-        public BidResponder(FlowSession counterpartySession) {
+        public Responder(FlowSession counterpartySession) {
             this.counterpartySession = counterpartySession;
         }
 

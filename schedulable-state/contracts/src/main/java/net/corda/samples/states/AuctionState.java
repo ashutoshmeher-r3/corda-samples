@@ -1,10 +1,7 @@
 package net.corda.samples.states;
 
 import com.google.common.collect.ImmutableList;
-import net.corda.core.contracts.BelongsToContract;
-import net.corda.core.contracts.SchedulableState;
-import net.corda.core.contracts.ScheduledActivity;
-import net.corda.core.contracts.StateRef;
+import net.corda.core.contracts.*;
 import net.corda.core.flows.FlowLogicRef;
 import net.corda.core.flows.FlowLogicRefFactory;
 import net.corda.core.identity.AbstractParty;
@@ -15,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,29 +22,31 @@ import java.util.UUID;
 @BelongsToContract(AuctionContract.class)
 public class AuctionState implements SchedulableState {
 
+    private final LinearPointer<LinearState> auctionItem;
     private final UUID auctionId;
-    private final Long basePrice;
-    private final Long currentHighestBid;
-    private final Party currentHighestBidder;
+    private final Amount<Currency> basePrice;
+    private final Amount<Currency> highestBid;
+    private final Party highestBidder;
     private final Instant bidEndTime;
-    private final Long winningBid;
+    private final Amount<Currency> winningBid;
     private final Boolean active;
 
-    private final Party auctioner;
+    private final Party auctioneer;
     private final List<Party> bidders;
     private final Party winner;
 
-    public AuctionState(UUID auctionId, Long basePrice, Long currentHighestBid, Party currentHighestBidder,
-                        Instant bidEndTime, Long winningBid, Boolean active, Party auctioner, List<Party> bidders,
-                        Party winner) {
+    public AuctionState(LinearPointer<LinearState> auctionItem, UUID auctionId, Amount<Currency> basePrice, Amount<Currency> highestBid,
+                        Party highestBidder, Instant bidEndTime, Amount<Currency> winningBid, Boolean active, Party auctioneer,
+                        List<Party> bidders, Party winner) {
+        this.auctionItem = auctionItem;
         this.auctionId = auctionId;
         this.basePrice = basePrice;
-        this.currentHighestBid = currentHighestBid;
-        this.currentHighestBidder = currentHighestBidder;
+        this.highestBid = highestBid;
+        this.highestBidder = highestBidder;
         this.bidEndTime = bidEndTime;
         this.winningBid = winningBid;
         this.active = active;
-        this.auctioner = auctioner;
+        this.auctioneer = auctioneer;
         this.bidders = bidders;
         this.winner = winner;
     }
@@ -55,8 +55,11 @@ public class AuctionState implements SchedulableState {
     @Override
     public ScheduledActivity nextScheduledActivity(@NotNull StateRef thisStateRef,
                                                    @NotNull FlowLogicRefFactory flowLogicRefFactory) {
+        if(!active)
+            return null;
+
         FlowLogicRef flowLogicRef = flowLogicRefFactory.create(
-                "net.corda.samples.flows.EndAuctionInitiator", auctionId);
+                "net.corda.samples.flows.EndAuctionFlow$Initiator", auctionId);
         return new ScheduledActivity(flowLogicRef, bidEndTime);
     }
 
@@ -64,7 +67,7 @@ public class AuctionState implements SchedulableState {
     @Override
     public List<AbstractParty> getParticipants() {
         List<Party> allParties = new ArrayList<>(bidders);
-        allParties.add(auctioner);
+        allParties.add(auctioneer);
         return ImmutableList.copyOf(allParties);
     }
 
@@ -72,28 +75,33 @@ public class AuctionState implements SchedulableState {
         return auctionId;
     }
 
-    public Long getBasePrice() {
+    public Amount<Currency> getBasePrice() {
         return basePrice;
     }
 
-    public Long getCurrentHighestBid() {
-        return currentHighestBid;
+    public LinearPointer<LinearState> getAuctionItem() {
+        return auctionItem;
     }
 
-    public Party getCurrentHighestBidder() {
-        return currentHighestBidder;
+    public Amount<Currency> getHighestBid() {
+        return highestBid;
+    }
+
+    public Party getHighestBidder() {
+        return highestBidder;
+    }
+
+    public Amount<Currency> getWinningBid() {
+        return winningBid;
     }
 
     public Instant getBidEndTime() {
         return bidEndTime;
     }
 
-    public Long getWinningBid() {
-        return winningBid;
-    }
 
-    public Party getAuctioner() {
-        return auctioner;
+    public Party getAuctioneer() {
+        return auctioneer;
     }
 
     public List<Party> getBidders() {

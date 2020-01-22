@@ -4,6 +4,7 @@ import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
 import net.corda.core.transactions.LedgerTransaction;
+import net.corda.samples.states.Asset;
 import net.corda.samples.states.AuctionState;
 
 // ************
@@ -31,6 +32,12 @@ public class AuctionContract implements Contract {
         else if (command.getValue() instanceof Commands.EndAuction)
             verifyEndAuction(tx);
 
+        else if(command.getValue() instanceof Commands.Settlement)
+            verifySettlement(tx);
+
+        else if(command.getValue() instanceof Commands.Exit)
+            verifyExit(tx);
+
         else
             throw new IllegalArgumentException("Invalid Command");
 
@@ -51,10 +58,11 @@ public class AuctionContract implements Contract {
 
         if(!inputState.getActive()) throw new IllegalArgumentException("Auction has Ended");
 
-        if(outputState.getCurrentHighestBid() < inputState.getBasePrice())
+        if(outputState.getHighestBid().getQuantity() < inputState.getBasePrice().getQuantity())
             throw new IllegalArgumentException("Bid Price should be greater than base price");
 
-        if(inputState.getCurrentHighestBid() != null && outputState.getCurrentHighestBid() <= inputState.getCurrentHighestBid())
+        if(inputState.getHighestBid() != null &&
+                outputState.getHighestBid().getQuantity() <= inputState.getHighestBid().getQuantity())
             throw new IllegalArgumentException("Bid Price should be greater than previous highest bid");
     }
 
@@ -62,8 +70,43 @@ public class AuctionContract implements Contract {
         // End Auction Contract Verification Logic goes here
         if(tx.getOutputStates().size() != 1) throw new IllegalArgumentException("One Output Expected");
         Command command = tx.getCommand(0);
-        if(!(command.getSigners().contains(((AuctionState)tx.getOutput(0)).getAuctioner().getOwningKey())))
-            throw new IllegalArgumentException("Auctioner Signature Required");
+        if(!(command.getSigners().contains(((AuctionState)tx.getOutput(0)).getAuctioneer().getOwningKey())))
+            throw new IllegalArgumentException("Auctioneer Signature Required");
+    }
+
+    private void verifySettlement(LedgerTransaction tx){
+        Command command = tx.getCommand(0);
+        AuctionState auctionState = (AuctionState) tx.getInput(0);
+
+        if(auctionState.getActive())
+            throw new IllegalArgumentException("Auction is Active");
+
+        if(!(command.getSigners().contains(auctionState.getAuctioneer().getOwningKey())) &&
+                (auctionState.getWinner()!=null
+                        && command.getSigners().contains(auctionState.getWinner().getOwningKey())))
+            throw new IllegalArgumentException("Auctioneer and Winner must Sign");
+    }
+
+    private void verifyExit(LedgerTransaction tx){
+        Command command = tx.getCommand(0);
+        AuctionState auctionState = (AuctionState) tx.getInput(0);
+        Asset asset = (Asset) tx.getReferenceInput(0);
+
+        if(auctionState.getActive())
+            throw new IllegalArgumentException("Auction is Active");
+
+        if(auctionState.getWinner() != null) {
+            if (!(command.getSigners().contains(auctionState.getAuctioneer().getOwningKey())) &&
+                    (auctionState.getWinner() != null
+                            && command.getSigners().contains(auctionState.getWinner().getOwningKey())))
+                throw new IllegalArgumentException("Auctioneer and Winner must Sign");
+
+            if (!(asset.getOwner().getOwningKey().equals(auctionState.getWinner().getOwningKey())))
+                throw new IllegalArgumentException("Auction not settled yet");
+        }else{
+            if (!(command.getSigners().contains(auctionState.getAuctioneer().getOwningKey())))
+                throw new IllegalArgumentException("Auctioneer must Sign");
+        }
     }
 
     // Used to indicate the transaction's intent.
@@ -71,6 +114,9 @@ public class AuctionContract implements Contract {
         class CreateAuction implements Commands {}
         class Bid implements Commands {}
         class EndAuction implements Commands {}
+        class TransferAsset implements Commands {}
+        class Settlement implements Commands {}
+        class Exit implements Commands {}
     }
 
 }

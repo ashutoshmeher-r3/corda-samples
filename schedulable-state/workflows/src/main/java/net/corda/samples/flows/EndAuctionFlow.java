@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class EndAuctionInitiator {
+public class EndAuctionFlow {
+
+    private EndAuctionFlow() {}
 
     @SchedulableFlow
     @InitiatingFlow
@@ -27,8 +29,8 @@ public class EndAuctionInitiator {
         @Override
         @Suspendable
         public SignedTransaction call() throws FlowException {
-            List<StateAndRef<AuctionState>> auctionStateAndRefs = getServiceHub().getVaultService().queryBy(AuctionState.class)
-                    .getStates();
+            List<StateAndRef<AuctionState>> auctionStateAndRefs = getServiceHub().getVaultService()
+                    .queryBy(AuctionState.class).getStates();
 
             StateAndRef<AuctionState> inputStateAndRef = auctionStateAndRefs.stream().filter(auctionStateAndRef -> {
                 AuctionState auctionState = auctionStateAndRef.getState().getData();
@@ -38,11 +40,11 @@ public class EndAuctionInitiator {
             Party notary = inputStateAndRef.getState().getNotary();
             AuctionState inputState = inputStateAndRef.getState().getData();
 
-            if (getOurIdentity().getName().toString().equals(inputState.getAuctioner().getName().toString())) {
+            if (getOurIdentity().getName().toString().equals(inputState.getAuctioneer().getName().toString())) {
                 AuctionState outputState = new AuctionState(inputState.getAuctionItem(), inputState.getAuctionId(),
-                        inputState.getBasePrice(), inputState.getCurrentBid(), inputState.getCurrentBidder(),
-                        inputState.getBidEndTime(), inputState.getCurrentBid(), false, inputState.getAuctioner(),
-                        inputState.getBidders(), inputState.getCurrentBidder());
+                        inputState.getBasePrice(), inputState.getHighestBid(), inputState.getHighestBidder(),
+                        inputState.getBidEndTime(), inputState.getHighestBid(), false, inputState.getAuctioneer(),
+                        inputState.getBidders(), inputState.getHighestBidder());
 
                 TransactionBuilder transactionBuilder = new TransactionBuilder(notary)
                         .addInputState(inputStateAndRef)
