@@ -15,8 +15,12 @@ app.controller('AppController', function($http, toastr, $uibModal) {
     demoApp.activeParty = "PartyA";
     demoApp.assetMap = {};
     demoApp.balance = 0;
+    demoApp.showSpinner = false;
+    demoApp.showAuctionSpinner = false;
+    demoApp.showAssetSpinner = false;
 
     demoApp.setupData = () => {
+        demoApp.showSpinner = true;
         $http.post(apiBaseURL + 'setup', httpHeaders)
         .then((response) => {
             if(response.data && response.data.status){
@@ -29,6 +33,7 @@ app.controller('AppController', function($http, toastr, $uibModal) {
             }else{
                 toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
             }
+            demoApp.showSpinner = false;
         });
     }
 
@@ -68,6 +73,7 @@ app.controller('AppController', function($http, toastr, $uibModal) {
 
 
     demoApp.fetchAuctions = () => {
+       demoApp.showAuctionSpinner = true;
        $http.get(apiBaseURL + 'list')
        .then((response) => {
           if(response.data && response.data.status){
@@ -75,10 +81,12 @@ app.controller('AppController', function($http, toastr, $uibModal) {
           }else{
              toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
           }
+          demoApp.showAuctionSpinner = false;
        });
     }
 
     demoApp.fetchAssets = () => {
+        demoApp.showAssetSpinner = true;
        $http.get(apiBaseURL + 'asset/list')
        .then((response) => {
           if(response.data && response.data.status){
@@ -92,6 +100,7 @@ app.controller('AppController', function($http, toastr, $uibModal) {
           }else{
              toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
           }
+          demoApp.showAssetSpinner = false;
        });
     }
 
@@ -147,6 +156,53 @@ app.controller('AppController', function($http, toastr, $uibModal) {
         cashModal.result.then(() => {}, () => {});
     };
 
+    demoApp.openCreateAssetModal = () => {
+        const cashModal = $uibModal.open({
+            templateUrl: 'createAssetModal.html',
+            controller: 'CreateAssetModalCtrl',
+            controllerAs: 'createAssetModalCtrl',
+            windowClass: 'app-modal-window',
+            resolve: {
+                demoApp: () => demoApp,
+                apiBaseURL: () => apiBaseURL,
+                toastr: () => toastr,
+            }
+        });
+
+        cashModal.result.then(() => {}, () => {});
+    };
+
+});
+
+
+app.controller('CreateAssetModalCtrl', function ($http, $uibModalInstance, $uibModal, demoApp, apiBaseURL, toastr) {
+    const createAssetModel = this;
+
+    createAssetModel.form = {};
+
+    createAssetModel.create = () => {
+        if(createAssetModel.form.imageUrl == undefined || createAssetModel.form.title == undefined ||
+        createAssetModel.form.description == undefined || createAssetModel.form.imageUrl == '' ||
+        createAssetModel.form.title == '' || createAssetModel.form.description == '' ){
+           toastr.error("All fields are mandatory!");
+        }else{
+           demoApp.showSpinner = true;
+           $http.post(apiBaseURL + 'asset/create', createAssetModel.form)
+           .then((response) => {
+              if(response.data && response.data.status){
+                  toastr.success('Asset Create Successfully');
+                  demoApp.fetchAssets();
+                  $uibModalInstance.dismiss();
+              }else{
+                  toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
+              }
+              demoApp.showSpinner = false;
+           });
+        }
+    }
+
+    createAssetModel.cancel = () => $uibModalInstance.dismiss();
+
 });
 
 app.controller('CashModalCtrl', function ($http, $uibModalInstance, $uibModal, demoApp, apiBaseURL, toastr) {
@@ -158,15 +214,17 @@ app.controller('CashModalCtrl', function ($http, $uibModalInstance, $uibModal, d
         if(cashModalModel.form.amount == undefined){
            toastr.error("Please enter amount to be issued");
         }else{
+            demoApp.showSpinner = true;
             $http.post(apiBaseURL + 'issueCash', cashModalModel.form)
             .then((response) => {
                if(response.data && response.data.status){
-                   toastr.success('Cash Issued Successfully Successfully');
+                   toastr.success('Cash Issued Successfully');
                    demoApp.fetchBalance();
                    $uibModalInstance.dismiss();
                }else{
                    toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
                }
+               demoApp.showSpinner = false;
             });
         }
     }
@@ -185,27 +243,6 @@ app.controller('AuctionModalCtrl', function ($http, $uibModalInstance, $uibModal
     let deadline = new Date(auctionModalModel.auction.state.data.bidEndTime).getTime();
     auctionModalModel.bidForm = {};
 
-    var x = $interval(function() {
-        let now = new Date().getTime();
-        let distance =  deadline - now;
-
-        auctionModalModel.timer.days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        auctionModalModel.timer.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        auctionModalModel.timer.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        auctionModalModel.timer.seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if(distance < 0){
-            $interval.cancel();
-            auctionModalModel.timer.days = 0;
-            auctionModalModel.timer.hours = 0;
-            auctionModalModel.timer.minutes = 0;
-            auctionModalModel.timer.seconds = 0;
-            auctionModalModel.auction.state.data.active = false;
-            $interval.cancel(x);
-            demoApp.fetchAuctions();
-        }
-    }, 1000);
-
     auctionModalModel.bidForm = {};
 
     auctionModalModel.cancel = () => $uibModalInstance.dismiss();
@@ -220,22 +257,25 @@ app.controller('AuctionModalCtrl', function ($http, $uibModalInstance, $uibModal
            toastr.error("Please enter Bid Amount");
            return;
         }
+        demoApp.showSpinner = true;
         $http.post(apiBaseURL + 'placeBid', auctionModalModel.bidForm)
-           .then((response) => {
-               if(response.data && response.data.status){
-                   toastr.success('Bid Placed Successfully');
-                   $uibModalInstance.dismiss();
-                   demoApp.fetchAuctions();
-               }else{
-                   toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
-               }
-           });
+       .then((response) => {
+           if(response.data && response.data.status){
+               toastr.success('Bid Placed Successfully');
+               $uibModalInstance.dismiss();
+               demoApp.fetchAuctions();
+           }else{
+               toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
+           }
+           demoApp.showSpinner = false;
+       });
     }
 
     auctionModalModel.payAndSettle = () => {
        auctionModalModel.settlementForm = {}
        auctionModalModel.settlementForm.auctionId = auctionModalModel.auction.state.data.auctionId;
        auctionModalModel.settlementForm.amount = auctionModalModel.auction.state.data.highestBid;
+       demoApp.showSpinner = true;
        $http.post(apiBaseURL + 'payAndSettle', auctionModalModel.settlementForm)
        .then((response) => {
            if(response.data && response.data.status){
@@ -247,10 +287,12 @@ app.controller('AuctionModalCtrl', function ($http, $uibModalInstance, $uibModal
            }else{
                toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
            }
+           demoApp.showSpinner = false;
        });
     }
 
     auctionModalModel.exit = () => {
+        demoApp.showSpinner = true;
         $http.post(apiBaseURL + 'delete' + '/' + auctionModalModel.auction.state.data.auctionId)
         .then((response) => {
             if(response.data && response.data.status){
@@ -260,8 +302,31 @@ app.controller('AuctionModalCtrl', function ($http, $uibModalInstance, $uibModal
             }else{
                 toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
             }
+            demoApp.showSpinner = false;
         });
     }
+
+
+      var x = $interval(function() {
+            let now = new Date().getTime();
+            let distance =  deadline - now;
+
+            auctionModalModel.timer.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            auctionModalModel.timer.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            auctionModalModel.timer.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            auctionModalModel.timer.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            if(distance < 0){
+                $interval.cancel();
+                auctionModalModel.timer.days = 0;
+                auctionModalModel.timer.hours = 0;
+                auctionModalModel.timer.minutes = 0;
+                auctionModalModel.timer.seconds = 0;
+                auctionModalModel.auction.state.data.active = false;
+                $interval.cancel(x);
+                demoApp.fetchAuctions();
+            }
+        }, 1000);
 });
 
 app.controller('AssetModalCtrl', function ($http, $uibModalInstance, $uibModal, demoApp, apiBaseURL, toastr, asset) {
@@ -283,6 +348,7 @@ app.controller('AssetModalCtrl', function ($http, $uibModalInstance, $uibModal, 
             assetModalModel.createAuctionForm.basePrice == ""){
             toastr.error("Base Price and Auction Deadline are mandatory");
         }else{
+            demoApp.showSpinner = true;
             $http.post(apiBaseURL + 'create', assetModalModel.createAuctionForm)
             .then((response) => {
                if(response.data && response.data.status){
@@ -292,6 +358,7 @@ app.controller('AssetModalCtrl', function ($http, $uibModalInstance, $uibModal, 
                }else{
                    toastr.error(response.data? response.data.message: "Something went wrong. Please try again later!");
                }
+               demoApp.showSpinner = false;
             });
         }
     }

@@ -57,6 +57,17 @@ public class Controller {
         }
     }
 
+    @PostMapping("asset/create")
+    public APIResponse<Void> createAsset(@RequestBody Forms.AssetForm assetForm){
+        try{
+            activeParty.startFlowDynamic(CreateAssetFlow.class, assetForm.getTitle(), assetForm.getDescription(),
+                    assetForm.getImageUrl()).getReturnValue().get();
+            return APIResponse.success();
+        }catch(Exception e){
+            return APIResponse.error(e.getMessage());
+        }
+    }
+
     @PostMapping("create")
     public APIResponse<Void> createAuction(@RequestBody Forms.CreateAuctionForm auctionForm){
         try {

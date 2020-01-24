@@ -31,7 +31,11 @@
     <script src="js/angular-module.js"></script>
 </head>
 <body ng-app="auctionApp" ng-controller="AppController as appCtrl">
-
+    <div class="spinner" ng-show="appCtrl.showSpinner">
+        <div>
+            <image style="width: 100px;" src="/img/spinner.svg"></image>
+        </div>
+    </div>
     <!-- Common Header -->
     <div class="header" ng-show="!appCtrl.landingScreen">
         <div style="display: inline-block;">
@@ -60,7 +64,7 @@
             <span>{{appCtrl.balance}} USD</span>
         </div>
         <div style="display: inline-block; float: right; margin-top: 15px; padding: 5px">
-            <button class="btn btn-sm btn-primary">New Asset</button>
+            <button ng-click="appCtrl.openCreateAssetModal()" class="btn btn-sm btn-primary">New Asset</button>
         </div>
         <div style="display: inline-block; float: right; margin-top: 15px; padding: 5px">
             <button ng-click="appCtrl.openIssueCashModal()" class="btn btn-sm btn-primary">Issue Cash</button>
@@ -97,7 +101,12 @@
 
         <!-- Home Screen -->
         <div ng-show="appCtrl.homeScreen" style="margin: 15px 30px">
-            <div class="row">
+            <div class="row" style="position: relative;">
+                <div class="spinner" ng-show="appCtrl.showAuctionSpinner">
+                    <div>
+                        <image style="width: 100px;" src="/img/spinner.svg"></image>
+                    </div>
+                </div>
                 <div class="col-md-12"><h3>Active Auction</h3></div>
                 <div class="col-md-12 nodata" style="font-size:20px;" ng-if="!appCtrl.auctions || appCtrl.auctions.length == 0">
                     No Active Auctions Found
@@ -129,7 +138,12 @@
 
             <hr class="col-md-12">
 
-            <div class="row">
+            <div class="row" style="position: relative;">
+                <div class="spinner" ng-show="appCtrl.showAssetSpinner">
+                    <div>
+                        <image style="width: 100px;" src="/img/spinner.svg"></image>
+                    </div>
+                </div>
                 <div class="col-md-12"><h3>My Assets</h3></div>
                 <div class="col-md-12 nodata" style="font-size:20px;" ng-if="!appCtrl.assets || appCtrl.assets.length == 0">
                     No Assets Found
@@ -148,6 +162,37 @@
         </div>
     </div>
 
+    <!-- Create Asset Modal -->
+    <script type="text/ng-template" id="createAssetModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Asset</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <image ng-if="createAssetModalCtrl.form.imageUrl" src="{{createAssetModalCtrl.form.imageUrl}}" alt="Asset Image" width="100%"></image>
+                </div>
+                <div class="col-md-6">
+                    <div class='input-group'>
+                        <input type='text' class="form-control" placeholder="Image URL"
+                               ng-model="createAssetModalCtrl.form.imageUrl"/>
+                </span>
+                    </div>
+                    <div class='input-group'>
+                        <input type='text' class="form-control" placeholder="Asset Title"
+                               ng-model="createAssetModalCtrl.form.title"/>
+                    </div>
+                    <div class='input-group'>
+                        <textarea class="form-control" rows="5" ng-model="createAssetModalCtrl.form.description" placeholder="Asset Description"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button ng-click="createAssetModalCtrl.cancel()" type="button" class="btn btn-default">Close</button>
+            <button ng-click="createAssetModalCtrl.create()" type="button" class="btn btn-primary">Create</button>
+        </div>
+    </script>
 
     <!-- Issue Cash Modal -->
     <script type="text/ng-template" id="issueCashModal.html">
@@ -179,7 +224,7 @@
 
 
 
-<!-- Auction Modal -->
+    <!-- Auction Modal -->
 
     <script type="text/ng-template" id="auctionModal.html">
         <div class="modal-header">
