@@ -1,12 +1,12 @@
 apply plugin: 'org.springframework.boot'
 
-sourceSets {
-    main {
-        resources {
-            srcDir rootProject.file("config/dev")
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        resources {
+//            srcDir rootProject.file("config/dev")
+//        }
+//    }
+//}
 
 dependencies {
     // Corda dependencies.

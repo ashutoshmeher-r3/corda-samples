@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class AssetContract implements Contract {
     @Override
     public void verify(@NotNull LedgerTransaction tx) throws IllegalArgumentException {
-        // Contract Verification code goes here
+        // Contract Verification code goes here. Left blank for simplicity
     }
 
     public interface Commands extends CommandData {

@@ -6,3 +6,5 @@ partyB:
 
 partyC:
   host: localhost:10012
+
+server.port: 8085

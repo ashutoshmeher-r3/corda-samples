@@ -16,6 +16,9 @@ import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This flow is used to put a bid on an asset put on auction.
+ */
 public class BidFlow {
 
     private BidFlow(){}
@@ -27,6 +30,12 @@ public class BidFlow {
         private final Amount<Currency> bidAmount;
         private final UUID auctionId;
 
+        /**
+         * Constructor to initialise flow parameters received from rpc.
+         *
+         * @param bidAmount is the amount the bidder is bidding for for the asset on auction.
+         * @param auctionId is the unique identifier of the auction on which this bid it put.
+         */
         public Initiator(Amount<Currency> bidAmount, UUID auctionId) {
             this.bidAmount = bidAmount;
             this.auctionId = auctionId;
@@ -36,7 +45,7 @@ public class BidFlow {
         @Suspendable
         public SignedTransaction call() throws FlowException {
 
-            // Query the vault to fetch a list of all AuctionState state, and filter the results based on the policyNumber
+            // Query the vault to fetch a list of all AuctionState state, and filter the results based on the auctionId
             // to fetch the desired AuctionState state from the vault. This filtered state would be used as input to the
             // transaction.
             List<StateAndRef<AuctionState>> auntionStateAndRefs = getServiceHub().getVaultService()
@@ -56,7 +65,8 @@ public class BidFlow {
                     bidAmount, getOurIdentity(), input.getBidEndTime(), null, true,
                     input.getAuctioneer(), input.getBidders(), null);
 
-            // Build the transaction
+            // Build the transaction. On successful completion of the transaction the current auction state is consumed
+            // and a new auction state is create as an output containg tge bid details.
             TransactionBuilder builder = new TransactionBuilder(inputStateAndRef.getState().getNotary())
                     .addInputState(inputStateAndRef)
                     .addOutputState(output)
@@ -68,7 +78,7 @@ public class BidFlow {
             // Sign the transaction
             SignedTransaction selfSignedTransaction = getServiceHub().signInitialTransaction(builder);
 
-            // Call finality Flow
+            // Call finality Flow to notarise and commit the transaction in all the participants ledger.
             List<FlowSession> allSessions = new ArrayList<>();
             List<Party> bidders = new ArrayList<>(input.getBidders());
             bidders.remove(getOurIdentity());

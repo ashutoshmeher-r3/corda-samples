@@ -3,13 +3,15 @@ package net.corda.samples.states;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.*;
 import net.corda.core.identity.AbstractParty;
-import net.corda.core.identity.Party;
 import net.corda.samples.contracts.AssetContract;
 import net.corda.samples.contracts.AuctionContract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * An ownable state to represent an asset that could be put on auction.
+ */
 @BelongsToContract(AssetContract.class)
 public class Asset implements OwnableState, LinearState {
 
@@ -40,6 +42,14 @@ public class Asset implements OwnableState, LinearState {
         return owner;
     }
 
+    /**
+     * This method should be called to retrieve an ownership transfer command and the updated state with the new owner
+     * passed as a parameter to the method.
+     *
+     * @param newOwner of the asset
+     * @return A CommandAndState object encapsulating the command and the new state with the changed owner, to be used
+     * in the ownership transfer transaction.
+     */
     @NotNull
     @Override
     public CommandAndState withNewOwner(@NotNull AbstractParty newOwner) {
