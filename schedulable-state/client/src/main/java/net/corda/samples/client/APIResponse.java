@@ -1,5 +1,9 @@
 package net.corda.samples.client;
 
+/**
+ * A wrapper to send response from the rest calls.
+ * @param <T>
+ */
 public class APIResponse<T> {
     private String message;
     private T data;

@@ -199,6 +199,10 @@ public class Controller {
         return getCashBalance();
     }
 
+    /**
+     * Create some initial data to play with.
+     * @return
+     */
     @PostMapping("setup")
     public APIResponse<Void> setupDemoData(){
         try {
